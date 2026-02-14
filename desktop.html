@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* MacBook Mockup - Desktop */
+        .macbook-container {
+            display: none;
+            perspective: 1000px;
+        }
+
+        .macbook {
+            width: 90vw;
+            max-width: 1200px;
+            position: relative;
+        }
+
+        .macbook-screen {
+            background: #000;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 
+                0 0 0 2px #2a2a2a,
+                0 20px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .macbook-display {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background: url('https://cataas.com/cat?width=1600&height=1000') center/cover;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .macbook-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 28px;
+            background: #000;
+            border-radius: 0 0 12px 12px;
+            z-index: 100;
+        }
+
+        .macbook-base {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to bottom, #3a3a3a, #2a2a2a);
+            border-radius: 0 0 12px 12px;
+            position: relative;
+            margin-top: -2px;
+        }
+
+        .macbook-hinge {
+            width: 40%;
+            height: 4px;
+            background: #1a1a1a;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* iPhone Mockup - Mobile */
+        .iphone-container {
+            display: none;
+        }
+
+        .iphone {
+            width: 340px;
+            height: 700px;
+            background: #1a1a1a;
+            border-radius: 50px;
+            padding: 12px;
+            box-shadow: 
+                0 0 0 2px #2a2a2a,
+                0 20px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            background: url('https://cataas.com/cat?width=400&height=800&id=2') center/cover;
+            border-radius: 42px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .iphone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 32px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 100;
+        }
+
+        .iphone-button {
+            position: absolute;
+            right: -4px;
+            top: 120px;
+            width: 4px;
+            height: 80px;
+            background: #2a2a2a;
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* Desktop Interface */
+        .desktop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .desktop-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .folder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100px;
+        }
+
+        .folder:hover {
+            transform: translateY(-4px);
+        }
+
+        .folder-icon {
+            width: 80px;
+            height: 64px;
+            background: linear-gradient(135deg, #4A9EFF 0%, #3B82F6 100%);
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4);
+        }
+
+        .folder-icon::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 0;
+            width: 40px;
+            height: 8px;
+            background: linear-gradient(135deg, #5AABFF 0%, #4A9EFF 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .folder-name {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        /* Mobile Interface */
+        .mobile-home {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 50px);
+            padding: 30px 20px;
+        }
+
+        .mobile-icons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .app-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .app-icon-img {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4A9EFF 0%, #3B82F6 100%);
+            border-radius: 14px;
+            margin-bottom: 6px;
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .app-name {
+            color: #fff;
+            font-size: 11px;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+            text-align: center;
+        }
+
+        /* Window/Modal */
+        .window {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .window.active {
+            display: block;
+            animation: windowOpen 0.3s ease;
+        }
+
+        @keyframes windowOpen {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .window-titlebar {
+            background: #f0f0f0;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .window-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .window-button.close {
+            background: #ff5f57;
+        }
+
+        .window-button.minimize {
+            background: #ffbd2e;
+        }
+
+        .window-button.maximize {
+            background: #28ca42;
+        }
+
+        .window-title {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .window-content {
+            padding: 40px;
+            background: #fff;
+            min-height: 200px;
+        }
+
+        .readme-text {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .macbook-container {
+                display: block;
+            }
+            .iphone-container {
+                display: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .macbook-container {
+                display: none;
+            }
+            .iphone-container {
+                display: block;
+            }
+        }
+
+        /* Dock (macOS) */
+        .dock {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            border-radius: 16px;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .dock {
+                display: block;
+            }
+        }
+
+        /* Status bar (iOS) */
+        .status-bar {
+            position: absolute;
+            top: 8px;
+            left: 0;
+            width: 100%;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 50;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .time {
+            margin-left: 140px;
+        }
+    </style>
+</head>
+<body>
+    <!-- MacBook Mockup (Desktop) -->
+    <div class="macbook-container">
+        <div class="macbook">
+            <div class="macbook-screen">
+                <div class="macbook-notch"></div>
+                <div class="macbook-display">
+                    <div class="desktop">
+                        <div class="desktop-icons">
+                            <div class="folder" onclick="openWindow()">
+                                <div class="folder-icon"></div>
+                                <div class="folder-name">STUFF</div>
+                            </div>
+                        </div>
+                        <div class="dock"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="macbook-base">
+                <div class="macbook-hinge"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- iPhone Mockup (Mobile) -->
+    <div class="iphone-container">
+        <div class="iphone">
+            <div class="iphone-screen">
+                <div class="iphone-notch"></div>
+                <div class="status-bar">
+                    <div class="time" id="time"></div>
+                    <div class="signal">📶 100%</div>
+                </div>
+                <div class="mobile-home">
+                    <div class="mobile-icons">
+                        <div class="app-icon" onclick="openWindow()">
+                            <div class="app-icon-img">📁</div>
+                            <div class="app-name">STUFF</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="iphone-button"></div>
+        </div>
+    </div>
+
+    <!-- Window/Modal -->
+    <div class="overlay" id="overlay" onclick="closeWindow()"></div>
+    <div class="window" id="window">
+        <div class="window-titlebar">
+            <div class="window-button close" onclick="closeWindow()"></div>
+            <div class="window-button minimize"></div>
+            <div class="window-button maximize"></div>
+            <div class="window-title">readme.txt</div>
+        </div>
+        <div class="window-content">
+            <div class="readme-text">it's you</div>
+        </div>
+    </div>
+
+    <script>
+        // Update time for iOS
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const timeEl = document.getElementById('time');
+            if (timeEl) {
+                timeEl.textContent = `${hours}:${minutes}`;
+            }
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Window controls
+        function openWindow() {
+            document.getElementById('window').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function closeWindow() {
+            document.getElementById('window').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        // ESC to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeWindow();
+            }
+        });
+    </script>
+</body>
+</html>
