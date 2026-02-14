@@ -83,8 +83,8 @@
             padding: 20px;
             background: rgba(220, 20, 60, 0.02);
             border: 1px solid rgba(220, 20, 60, 0.3);
-            min-height: 400px;
-            max-height: 60vh;
+            min-height: 200px;
+            max-height: 35vh;
             scroll-behavior: smooth;
         }
 
@@ -273,7 +273,8 @@
 
             .chat-window {
                 padding: 15px;
-                max-height: 50vh;
+                max-height: 30vh;
+                min-height: 150px;
             }
 
             .message {
@@ -531,11 +532,19 @@ Keep responses relatively concise (2-4 sentences usually). Be human, be Maciej.`
         }
 
         function scrollToBottom() {
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-            // Force scroll after a small delay to ensure content is rendered
+            // Multiple approaches to ensure scrolling works
+            const scrollHeight = chatWindow.scrollHeight;
+            chatWindow.scrollTop = scrollHeight;
+            
+            // Force with requestAnimationFrame
+            requestAnimationFrame(() => {
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            });
+            
+            // Additional force after slight delay
             setTimeout(() => {
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-            }, 50);
+            }, 100);
         }
 
         function escapeHtml(text) {
