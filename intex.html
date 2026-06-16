@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Maciej Rudzin — Space</title>
+    <style>
+        /* ---- To use your own wallpaper instead of the CSS space scene,
+               set:  .scene { background-image: url('your-photo.jpg'); background-size: cover; }
+               and remove the .scene::after / .atmo rules.                 ---- */
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { height: 100%; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+            background: #02040a;
+            color: #fff;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ================= SPACE SCENE (wallpaper) ================= */
+        .scene {
+            position: fixed; inset: 0; z-index: 0; overflow: hidden;
+            background: radial-gradient(120% 90% at 50% -10%, #0a1426 0%, #050a16 45%, #02040a 100%);
+        }
+        /* starfield */
+        .scene .stars {
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(1.6px 1.6px at 12% 18%, rgba(255,255,255,.95), transparent),
+                radial-gradient(1.2px 1.2px at 28% 8%, rgba(255,255,255,.7), transparent),
+                radial-gradient(1px 1px at 42% 22%, rgba(255,255,255,.6), transparent),
+                radial-gradient(1.4px 1.4px at 63% 12%, rgba(255,255,255,.85), transparent),
+                radial-gradient(1px 1px at 78% 26%, rgba(255,255,255,.55), transparent),
+                radial-gradient(1.3px 1.3px at 88% 9%, rgba(255,255,255,.8), transparent),
+                radial-gradient(1px 1px at 7% 40%, rgba(255,255,255,.5), transparent),
+                radial-gradient(1.1px 1.1px at 35% 38%, rgba(255,255,255,.6), transparent),
+                radial-gradient(1px 1px at 55% 34%, rgba(255,255,255,.45), transparent),
+                radial-gradient(1.2px 1.2px at 70% 44%, rgba(255,255,255,.6), transparent),
+                radial-gradient(1px 1px at 93% 38%, rgba(255,255,255,.5), transparent),
+                radial-gradient(1.5px 1.5px at 20% 55%, rgba(255,255,255,.7), transparent),
+                radial-gradient(1px 1px at 48% 60%, rgba(255,255,255,.4), transparent),
+                radial-gradient(1px 1px at 82% 56%, rgba(255,255,255,.45), transparent);
+            opacity: .9;
+        }
+        /* Earth limb */
+        .scene .earth {
+            position: absolute; left: 50%; top: 15%;
+            transform: translateX(-50%);
+            width: 230vw; height: 230vw; max-width: 3400px; max-height: 3400px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 0%,
+                #eaf5ff 0%, #c4e0ff 1.6%, #93bdec 4%, #6299d6 9%,
+                #3f72b6 16%, #2a5594 24%, #183c6c 33%, #0e2a50 43%,
+                #082039 54%, #04132a 66%, #02040a 80%);
+            box-shadow:
+                0 0 0 2px rgba(170,215,255,.45),
+                0 -4px 50px 10px rgba(150,200,255,.45),
+                0 0 130px 30px rgba(80,140,220,.30);
+        }
+        /* atmosphere halo above the horizon */
+        .scene .atmo {
+            position: absolute; left: 50%; top: 15%;
+            transform: translateX(-50%);
+            width: 230vw; height: 230vw; max-width: 3400px; max-height: 3400px;
+            border-radius: 50%;
+            box-shadow: 0 -1px 26px 4px rgba(190,225,255,.5);
+            pointer-events: none;
+        }
+        /* faint cloud streaks over the surface */
+        .scene .clouds {
+            position: absolute; left: 50%; top: 15%;
+            transform: translateX(-50%);
+            width: 230vw; height: 230vw; max-width: 3400px; max-height: 3400px;
+            border-radius: 50%;
+            background: repeating-linear-gradient(108deg,
+                rgba(255,255,255,.05) 0 3px, transparent 3px 34px);
+            -webkit-mask-image: radial-gradient(circle at 50% 0%, transparent 0 6%, #000 14%, #000 45%, transparent 62%);
+                    mask-image: radial-gradient(circle at 50% 0%, transparent 0 6%, #000 14%, #000 45%, transparent 62%);
+            opacity: .5; pointer-events: none;
+        }
+
+        .scene .wallpaper {
+            position: absolute; inset: 0; background-size: cover; background-position: center;
+            opacity: 0; transition: opacity .6s ease; z-index: 5;
+        }
+        .scene .wallpaper.on { opacity: 1; }
+        .litera { max-width: 520px; margin: 0 auto; font-size: 17px; }
+        .litera p { margin-bottom: 16px; }
+        .litera em { opacity: .85; }
+
+        /* ================= MENU BAR ================= */
+        .menubar {
+            position: fixed; top: 0; left: 0; right: 0; height: 26px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 14px; z-index: 800;
+            background: rgba(20,22,30,.32);
+            backdrop-filter: saturate(180%) blur(22px);
+            -webkit-backdrop-filter: saturate(180%) blur(22px);
+            font-size: 13.5px; color: #fff;
+            text-shadow: 0 1px 1px rgba(0,0,0,.25);
+        }
+        .menubar-left { display: flex; align-items: center; gap: 18px; }
+        .menubar .apple { font-size: 15px; line-height: 1; opacity: .95; }
+        .menubar .app-name { font-weight: 700; }
+        .menubar .menu-item { font-weight: 400; opacity: .92; cursor: pointer; padding: 3px 9px; border-radius: 5px; }
+        .menubar .menu-item:hover, .menubar .menu-item.open { background: rgba(255,255,255,.18); }
+
+        /* macOS dropdown */
+        .dropdown {
+            position: fixed; top: 28px; min-width: 240px; max-width: 320px; z-index: 900;
+            background: rgba(38,38,42,.78);
+            backdrop-filter: saturate(180%) blur(28px); -webkit-backdrop-filter: saturate(180%) blur(28px);
+            border: .5px solid rgba(255,255,255,.16);
+            border-radius: 10px; padding: 5px;
+            box-shadow: 0 18px 50px rgba(0,0,0,.55), inset 0 .5px 0 rgba(255,255,255,.12);
+            animation: ddOpen .12s ease;
+        }
+        @keyframes ddOpen { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+        .dropdown .dd-item {
+            display: block; padding: 5px 12px; border-radius: 6px;
+            font-size: 13.5px; color: #fff; cursor: pointer; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .dropdown .dd-item:hover { background: #2f7cf6; }
+        .dropdown .dd-sep { height: 1px; margin: 5px 10px; background: rgba(255,255,255,.16); }
+        .dropdown .dd-note { padding: 5px 12px; font-size: 12px; color: rgba(255,255,255,.55);
+            white-space: normal; cursor: default; }
+
+        /* poem window content */
+        .poem { white-space: pre-wrap; font-size: 16.5px; line-height: 1.85; color: #2a2a2e;
+            max-width: 520px; margin: 0 auto; }
+        .menubar-right { display: flex; align-items: center; gap: 15px; font-weight: 500; }
+        .menubar-right svg { display: block; opacity: .95; }
+        .menubar .clock { font-variant-numeric: tabular-nums; }
+
+        /* ================= DESKTOP ICONS ================= */
+        .desktop {
+            position: fixed; inset: 0; z-index: 10;
+        }
+        .desktop-icons { position: absolute; inset: 0; }
+        .icon {
+            position: absolute; width: 96px;
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; padding: 6px 4px 3px; border-radius: 8px;
+            user-select: none; -webkit-user-select: none;
+        }
+        .icon.dragging .glyph { transform: scale(1.08); }
+        img { -webkit-user-drag: none; user-drag: none; }
+        .icon .glyph {
+            width: 64px; height: 64px; display: flex; align-items: center; justify-content: center;
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,.45));
+            transition: transform .15s ease;
+        }
+        .icon:hover .glyph { transform: scale(1.05); }
+        .icon .glyph img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .icon .label {
+            margin-top: 5px; font-size: 12.5px; font-weight: 500; color: #fff;
+            text-align: center; line-height: 1.25; padding: 1px 6px; border-radius: 5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,.85);
+            word-break: break-word;
+        }
+        .icon.selected .label { background: rgba(0,122,255,.85); text-shadow: none; }
+        .icon.selected .glyph { filter: drop-shadow(0 3px 5px rgba(0,0,0,.45)) brightness(.92); }
+
+        /* ================= DOCK ================= */
+        .dock-wrap {
+            position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%);
+            z-index: 700;
+        }
+        .dock {
+            display: flex; align-items: flex-end; gap: 6px;
+            padding: 7px 9px;
+            background: rgba(255,255,255,.18);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 22px;
+            backdrop-filter: saturate(180%) blur(26px);
+            -webkit-backdrop-filter: saturate(180%) blur(26px);
+            box-shadow: 0 12px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25);
+        }
+        .dock-icon {
+            position: relative; width: 52px; height: 52px;
+            cursor: pointer; transform-origin: bottom center;
+            transition: transform .12s ease, margin .12s ease;
+            will-change: transform;
+        }
+        .dock-icon .glyph { width: 52px; height: 52px; }
+        .dock-icon .glyph img { width: 52px; height: 52px; object-fit: cover; border-radius: 12px; }
+        .dock-icon .dock-tip {
+            position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%) scale(.9);
+            background: rgba(40,40,45,.92); color: #fff; font-size: 12px; font-weight: 500;
+            padding: 4px 10px; border-radius: 7px; white-space: nowrap;
+            opacity: 0; pointer-events: none; transition: opacity .12s ease, transform .12s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,.4);
+        }
+        .dock-icon .dock-tip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border: 5px solid transparent; border-top-color: rgba(40,40,45,.92);
+        }
+        .dock-icon:hover .dock-tip { opacity: 1; transform: translateX(-50%) scale(1); }
+        .dock-divider { width: 1px; height: 44px; margin: 0 4px; align-self: center;
+            background: rgba(255,255,255,.28); }
+        .dock-icon .run-dot {
+            position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.8);
+        }
+
+        /* ================= WINDOWS ================= */
+        .window {
+            position: fixed; width: 90%; max-width: 720px; max-height: 72vh;
+            background: rgba(248,248,250,.96);
+            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border-radius: 12px; overflow: hidden;
+            display: flex; flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 .5px rgba(0,0,0,.2);
+        }
+        @keyframes windowOpen { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+        @keyframes windowFocus { 0% { transform: scale(1); } 40% { transform: scale(1.015); } 100% { transform: scale(1); } }
+        .window-titlebar {
+            background: rgba(236,236,238,.85); padding: 11px 14px;
+            display: flex; align-items: center; gap: 8px;
+            border-bottom: .5px solid rgba(0,0,0,.12);
+            flex-shrink: 0; cursor: move; user-select: none;
+        }
+        .window-buttons { display: flex; gap: 8px; }
+        .window-button { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
+        .window-button.close { background: #ff5f57; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.12); }
+        .window-button.minimize { background: #febc2e; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.12); }
+        .window-button.maximize { background: #28c840; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.12); }
+        .window-title { flex: 1; text-align: center; font-size: 13px; color: #3a3a3a; font-weight: 600;
+            margin-right: 52px; }
+        .window-content { flex: 1; overflow-y: auto; padding: 32px; background: #fff; color: #1d1d1f; }
+        .placeholder { text-align: center; color: #888; padding: 56px 20px; }
+        .placeholder h2 { font-size: 24px; margin-bottom: 12px; color: #1d1d1f; }
+        .placeholder p { font-size: 16px; line-height: 1.6; }
+
+        /* dynamic content */
+        .dyn-loading { display: flex; align-items: center; gap: 10px; justify-content: center;
+            color: #888; padding: 60px 20px; font-size: 15px; }
+        .spinner { width: 16px; height: 16px; border: 2px solid #ccc; border-top-color: #555;
+            border-radius: 50%; animation: spin .7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .gal-item { display: block; border-radius: 8px; overflow: hidden; background: #f0f0f2;
+            aspect-ratio: 1; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+        .gal-item img, .gal-item video { width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform .25s ease; }
+        .gal-item:hover img { transform: scale(1.05); }
+        .prose { line-height: 1.75; color: #2a2a2e; font-size: 16px; }
+        .prose h1, .prose h2, .prose h3 { margin: 18px 0 10px; line-height: 1.3; }
+        .prose p { margin: 0 0 12px; }
+        .prose img { max-width: 100%; border-radius: 8px; }
+        .prose a { color: #0a6cff; }
+        .note { padding: 18px 0; border-bottom: 1px solid #ececef; }
+        .note:last-child { border-bottom: none; }
+        .note h3 { margin-bottom: 8px; font-size: 18px; color: #1d1d1f; }
+
+        /* ================= MOBILE ================= */
+        .mobile { display: none; }
+        .mobile-statusbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 54px; z-index: 800;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 30px 0; color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,.5);
+        }
+        .mobile-statusbar #mobileClock { font-size: 17px; font-weight: 600; letter-spacing: .3px; }
+        .mobile-statusbar .right { display: flex; align-items: center; gap: 6px; }
+        .mobile-home {
+            position: fixed; inset: 0; z-index: 10;
+            padding: 92px 26px 200px; overflow-y: auto;
+        }
+        .mobile-icons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px 14px; }
+        .m-icon { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .m-icon .glyph { position: relative; width: 62px; height: 62px; filter: drop-shadow(0 4px 12px rgba(0,0,0,.4)); }
+        .m-icon .glyph img { width: 62px; height: 62px; object-fit: cover; border-radius: 15px; }
+        .m-icon .label { margin-top: 7px; font-size: 12.5px; font-weight: 500; color: #fff;
+            text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+        .badge {
+            position: absolute; top: -6px; right: -6px; min-width: 21px; height: 21px; padding: 0 6px;
+            background: #ff3b30; color: #fff; border-radius: 11px; font-size: 12px; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.4);
+            border: 1.5px solid rgba(255,255,255,.15);
+        }
+        .search-pill {
+            position: fixed; bottom: 112px; left: 50%; transform: translateX(-50%); z-index: 700;
+            display: flex; align-items: center; gap: 7px;
+            padding: 9px 18px; border-radius: 22px; font-size: 15px; color: #fff;
+            background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.18);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            text-shadow: 0 1px 2px rgba(0,0,0,.4);
+        }
+        .mobile-dock {
+            position: fixed; bottom: 22px; left: 14px; right: 14px; z-index: 700;
+            display: flex; justify-content: space-around; padding: 14px 14px;
+            background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.18);
+            border-radius: 34px; backdrop-filter: saturate(180%) blur(28px);
+            -webkit-backdrop-filter: saturate(180%) blur(28px);
+        }
+        .mobile-dock .glyph { width: 60px; height: 60px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.35)); }
+        .mobile-dock .glyph img { width: 60px; height: 60px; object-fit: cover; border-radius: 15px; }
+
+        @media (max-width: 767px) {
+            .menubar, .desktop, .dock-wrap { display: none; }
+            .mobile { display: block; }
+            .window { width: 92%; max-width: 92%; max-height: 84vh; border-radius: 18px; }
+            .window-content { padding: 24px; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+</head>
+<body>
+    <!-- Wallpaper -->
+    <div class="scene">
+        <div class="stars"></div>
+        <div class="earth"></div>
+        <div class="clouds"></div>
+        <div class="atmo"></div>
+        <div class="wallpaper" id="wallpaper"></div>
+    </div>
+
+    <!-- Menu bar -->
+    <div class="menubar">
+        <div class="menubar-left">
+            <span class="apple"></span>
+            <span class="app-name">Maciej Rudzin</span>
+            <span class="menu-item" data-menu="file">File</span>
+            <span class="menu-item" data-menu="edit">Edit</span>
+            <span class="menu-item" data-menu="view">View</span>
+            <span class="menu-item" data-menu="go">Go</span>
+            <span class="menu-item" data-menu="window">Window</span>
+            <span class="menu-item" data-menu="help">Help</span>
+        </div>
+        <div class="menubar-right">
+            <!-- search -->
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke-linecap="round"/></svg>
+            <!-- battery -->
+            <svg width="26" height="14" viewBox="0 0 30 14"><rect x="1" y="2" width="24" height="10" rx="3" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.2"/><rect x="2.6" y="3.6" width="13" height="6.8" rx="1.6" fill="#fff"/><rect x="26.4" y="5" width="2" height="4" rx="1" fill="#fff" fill-opacity=".6"/></svg>
+            <!-- wifi -->
+            <svg width="17" height="13" viewBox="0 0 18 14" fill="#fff"><path d="M9 13.5a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z"/><path d="M9 6.4c1.9 0 3.6.7 4.9 1.9l1.4-1.5A9.3 9.3 0 0 0 9 4.2 9.3 9.3 0 0 0 2.7 6.8l1.4 1.5A7.1 7.1 0 0 1 9 6.4Z" opacity=".85"/><path d="M9 1C5.7 1 2.7 2.3.5 4.4l1.4 1.5A10.6 10.6 0 0 1 9 3a10.6 10.6 0 0 1 7.1 2.9l1.4-1.5A12.8 12.8 0 0 0 9 1Z" opacity=".55"/></svg>
+            <!-- control center -->
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="3.5"/><rect x="3" y="13" width="18" height="7" rx="3.5"/><circle cx="8" cy="7.5" r="1.4" fill="#fff"/><circle cx="16" cy="16.5" r="1.4" fill="#fff"/></svg>
+            <span class="clock" id="menuClock">—</span>
+        </div>
+    </div>
+
+    <!-- Desktop -->
+    <div class="desktop">
+        <div class="desktop-icons" id="desktopIcons"></div>
+    </div>
+
+    <!-- Dock -->
+    <div class="dock-wrap">
+        <div class="dock" id="dock"></div>
+    </div>
+
+    <!-- Mobile -->
+    <div class="mobile">
+        <div class="mobile-statusbar">
+            <span id="mobileClock">—</span>
+            <span class="right">
+                <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></svg>
+                <svg width="17" height="13" viewBox="0 0 18 14" fill="#fff"><path d="M9 13.5a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z"/><path d="M9 6.4c1.9 0 3.6.7 4.9 1.9l1.4-1.5A9.3 9.3 0 0 0 9 4.2 9.3 9.3 0 0 0 2.7 6.8l1.4 1.5A7.1 7.1 0 0 1 9 6.4Z" opacity=".85"/><path d="M9 1C5.7 1 2.7 2.3.5 4.4l1.4 1.5A10.6 10.6 0 0 1 9 3a10.6 10.6 0 0 1 7.1 2.9l1.4-1.5A12.8 12.8 0 0 0 9 1Z" opacity=".55"/></svg>
+                <svg width="28" height="14" viewBox="0 0 30 14"><rect x="1" y="2" width="24" height="10" rx="3" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.2"/><rect x="2.6" y="3.6" width="18" height="6.8" rx="1.6" fill="#fff"/><rect x="26.4" y="5" width="2" height="4" rx="1" fill="#fff" fill-opacity=".55"/></svg>
+            </span>
+        </div>
+        <div class="mobile-home"><div class="mobile-icons" id="mobileIcons"></div></div>
+        <div class="search-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke-linecap="round"/></svg>
+            Search
+        </div>
+        <div class="mobile-dock" id="mobileDock"></div>
+    </div>
+
+    <script>
+        let windowCounter = 0;
+        let activeWindows = [];
+        let highestZIndex = 1000;
+        let gid = 0; // unique id source for SVG gradients
+
+        /* ---------- Portfolio items ---------- */
+        const items = [
+            { id: 'works', name: 'WORKS', type: 'folder', dynamic: true, source: { kind: 'gallery', dir: 'works' }, content: `
+                <div class="placeholder"><h2>WORKS</h2><p>Gallery of images, films, and creative projects</p>
+                <p style="margin-top:20px;color:#999;">Content coming soon…</p></div>` },
+            { id: 'about', name: 'about_me.txt', type: 'file', dynamic: true, source: { kind: 'about' }, content: `
+                <div style="font-family:'SF Mono',ui-monospace,'Courier New',monospace;line-height:1.85;color:#333;">
+                    <h2 style="font-family:-apple-system;margin-bottom:18px;">About Me</h2>
+                    <p>[Your bio will go here]</p><br>
+                    <p>Visual artist, creator of intimate digital experiences.</p>
+                    <p>Exploring memory, fragments, and the spaces between reality and perception.</p>
+                </div>` },
+            { id: 'kot', name: 'kot.jpg', type: 'image', thumb: 'https://cataas.com/cat?width=200&height=200', content: `
+                <div style="text-align:center;"><img src="https://cataas.com/cat?width=600&height=800"
+                    style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);" alt="Cat"></div>` },
+            { id: 'shop', name: 'Shop', type: 'shop', content: `
+                <div class="placeholder"><h2>Shop</h2><p>Browse and purchase artworks</p>
+                <p style="margin-top:20px;color:#999;">Store coming soon…</p></div>` },
+            { id: 'spotify', name: 'Spotify', type: 'music', isExternal: true, url: 'https://open.spotify.com' },
+            { id: 'instagram', name: 'Instagram', type: 'instagram', isExternal: true, url: 'https://instagram.com/twoj_profil' },
+            { id: 'notes', name: 'Notes', type: 'notes', badge: 1, dynamic: true, source: { kind: 'notes' }, content: `
+                <div class="placeholder"><h2>Notes</h2><p>Personal writings and thoughts</p>
+                <p style="margin-top:20px;color:#999;">Texts coming soon…</p></div>` },
+            { id: 'inspirations', name: 'Inspirations', type: 'folder', dynamic: true, source: { kind: 'gallery', dir: 'inspirations' }, content: `
+                <div class="placeholder"><h2>Inspirations</h2><p>Things I love, things that move me</p>
+                <p style="margin-top:20px;color:#999;">Collection coming soon…</p></div>` }
+        ];
+
+        /* ---------- Icon graphics ---------- */
+        function glyphHTML(item, px) {
+            const sz = px || 64;
+            switch (item.type) {
+                case 'folder': return folderSVG(sz);
+                case 'file': return fileSVG(sz);
+                case 'image': return `<img src="${item.thumb}" alt="${item.name}">`;
+                case 'music': return appSVG(sz, ['#2bd968','#13b956'], musicGlyph());
+                case 'instagram': return instagramSVG(sz);
+                case 'notes': return notesSVG(sz);
+                case 'shop': return appSVG(sz, ['#ff9a62','#ff5e7d'], bagGlyph());
+                default: return appSVG(sz, ['#8e9bff','#6a5cff'], '');
+            }
+        }
+        function folderSVG(sz){ const a='fb'+(++gid), b='ff'+(++gid); return `
+            <svg width="${sz}" height="${sz}" viewBox="0 0 80 64">
+              <defs>
+                <linearGradient id="${a}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cb6ff"/><stop offset="1" stop-color="#1f8cf0"/></linearGradient>
+                <linearGradient id="${b}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd0ff"/><stop offset="1" stop-color="#37a0f6"/></linearGradient>
+              </defs>
+              <path d="M5 15c0-4 2-6 6-6h17l6 6h35c4 0 6 2 6 6v29c0 4-2 6-6 6H11c-4 0-6-2-6-6Z" fill="url(#${a})"/>
+              <path d="M5 23h70v27c0 4-2 6-6 6H11c-4 0-6-2-6-6Z" fill="url(#${b})"/>
+            </svg>`; }
+        function fileSVG(sz){ return `
+            <svg width="${sz}" height="${sz}" viewBox="0 0 64 80">
+              <path d="M12 5h26l16 16v52c0 3-2 5-5 5H17c-3 0-5-2-5-5V10c0-3 2-5 5-5Z" fill="#fff" stroke="#dcdce0" stroke-width="1.2"/>
+              <path d="M38 5l16 16H43c-3 0-5-2-5-5Z" fill="#e7e7ec"/>
+              <g fill="#c9c9d0"><rect x="20" y="38" width="26" height="3" rx="1.5"/><rect x="20" y="46" width="26" height="3" rx="1.5"/><rect x="20" y="54" width="18" height="3" rx="1.5"/></g>
+            </svg>`; }
+        function notesSVG(sz){ return `
+            <svg width="${sz}" height="${sz}" viewBox="0 0 64 64">
+              <rect x="6" y="6" width="52" height="52" rx="13" fill="#fff"/>
+              <path d="M6 19c0-7 6-13 13-13h26c7 0 13 6 13 13v3H6Z" fill="#ffd23d"/>
+              <g stroke="#e2c84f" stroke-width="2.4" stroke-linecap="round"><line x1="17" y1="33" x2="47" y2="33"/><line x1="17" y1="41" x2="47" y2="41"/><line x1="17" y1="49" x2="37" y2="49"/></g>
+            </svg>`; }
+        function appSVG(sz, grad, inner){ const u='app'+(++gid); return `
+            <svg width="${sz}" height="${sz}" viewBox="0 0 64 64">
+              <defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${grad[0]}"/><stop offset="1" stop-color="${grad[1]}"/></linearGradient></defs>
+              <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#${u})"/>
+              ${inner}
+            </svg>`; }
+        function musicGlyph(){ return `<g fill="#fff"><path d="M40 18l-16 4v20.5a6 6 0 1 0 3 5.2V27l13-3.3v11.8a6 6 0 1 0 3 5.2V18Z"/></g>`; }
+        function instagramSVG(sz){ const u='ig'+(++gid); return `
+            <svg width="${sz}" height="${sz}" viewBox="0 0 64 64">
+              <defs><linearGradient id="${u}" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0" stop-color="#feda75"/><stop offset=".25" stop-color="#fa7e1e"/>
+                <stop offset=".5" stop-color="#d62976"/><stop offset=".75" stop-color="#962fbf"/><stop offset="1" stop-color="#4f5bd5"/>
+              </linearGradient></defs>
+              <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#${u})"/>
+              <rect x="18" y="18" width="28" height="28" rx="9" fill="none" stroke="#fff" stroke-width="3.4"/>
+              <circle cx="32" cy="32" r="8" fill="none" stroke="#fff" stroke-width="3.4"/>
+              <circle cx="42.6" cy="21.4" r="2.5" fill="#fff"/>
+            </svg>`; }
+        function bagGlyph(){ return `<g fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 26h24l-2.5 22a3 3 0 0 1-3 2.7H25.5a3 3 0 0 1-3-2.7Z"/><path d="M26 26v-3a6 6 0 0 1 12 0v3"/></g>`; }
+        function monogramSVG(sz){ const u='mono'+(++gid); return `
+            <svg width="${sz}" height="${sz}" viewBox="0 0 64 64">
+              <defs><linearGradient id="${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3f4a"/><stop offset="1" stop-color="#15171c"/></linearGradient></defs>
+              <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#${u})"/>
+              <text x="32" y="42" text-anchor="middle" font-family="-apple-system,Georgia,serif" font-weight="600" font-size="26" fill="#fff" letter-spacing="-1">MR</text>
+            </svg>`; }
+        function trashSVG(sz){ return `
+            <svg width="${sz}" height="${sz}" viewBox="0 0 64 64">
+              <rect x="4" y="4" width="56" height="56" rx="14" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.3)"/>
+              <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 24h24l-2 26a3 3 0 0 1-3 2.7H25a3 3 0 0 1-3-2.7Z"/><path d="M16 24h32"/><path d="M26 24v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4"/>
+                <line x1="28" y1="31" x2="29" y2="46"/><line x1="36" y1="31" x2="35" y2="46"/></g>
+            </svg>`; }
+
+        /* ---------- Render desktop + mobile icons ---------- */
+        let iconZ = 50;
+        function renderIcons() {
+            const desk = document.getElementById('desktopIcons');
+            const mob = document.getElementById('mobileIcons');
+            const stepY = 106, startY = 42;
+            const perCol = Math.max(1, Math.floor((window.innerHeight - startY - 110) / stepY));
+            items.forEach((item, idx) => {
+                // desktop (draggable, free positioning) — default: right-hand column(s)
+                const d = document.createElement('div');
+                d.className = 'icon';
+                d.ondragstart = () => false;
+                d.innerHTML = `<div class="glyph">${glyphHTML(item, 64)}</div><div class="label">${item.name}</div>`;
+                const col = Math.floor(idx / perCol), row = idx % perCol;
+                d.style.left = (window.innerWidth - 110 - col * 110) + 'px';
+                d.style.top = (startY + row * stepY) + 'px';
+                desk.appendChild(d);
+                makeIconDraggable(d, item);
+
+                // mobile
+                const m = document.createElement('div');
+                m.className = 'm-icon';
+                const badge = item.badge ? `<span class="badge">${item.badge}</span>` : '';
+                m.innerHTML = `<div class="glyph">${glyphHTML(item, 62)}${badge}</div><div class="label">${item.name}</div>`;
+                m.onclick = () => openItem(item);
+                mob.appendChild(m);
+            });
+        }
+        function selectIcon(el){
+            document.querySelectorAll('.icon.selected').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.icon')) document.querySelectorAll('.icon.selected').forEach(i => i.classList.remove('selected'));
+        });
+
+        /* ---------- Drag desktop icons freely (click vs. drag) ---------- */
+        function makeIconDraggable(el, item) {
+            let sx, sy, ox, oy, moved = false, dragging = false;
+            el.addEventListener('mousedown', e => {
+                if (e.button !== 0) return;
+                dragging = true; moved = false;
+                sx = e.clientX; sy = e.clientY;
+                ox = parseFloat(el.style.left) || el.offsetLeft;
+                oy = parseFloat(el.style.top) || el.offsetTop;
+                el.classList.add('dragging');
+                el.style.zIndex = ++iconZ;
+                document.addEventListener('mousemove', mv);
+                document.addEventListener('mouseup', up);
+            });
+            function mv(e) {
+                if (!dragging) return;
+                const dx = e.clientX - sx, dy = e.clientY - sy;
+                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+                const cont = el.parentElement;
+                let left = ox + dx, top = oy + dy;
+                left = Math.max(0, Math.min(left, cont.clientWidth - el.offsetWidth));
+                top = Math.max(30, Math.min(top, cont.clientHeight - el.offsetHeight - 80));
+                el.style.left = left + 'px'; el.style.top = top + 'px';
+            }
+            function up() {
+                dragging = false; el.classList.remove('dragging');
+                document.removeEventListener('mousemove', mv);
+                document.removeEventListener('mouseup', up);
+            }
+            el.addEventListener('click', () => {
+                if (moved) { moved = false; return; } // it was a drag, don't open
+                selectIcon(el); openItem(item);
+            });
+        }
+
+        /* ---------- Render dock ---------- */
+        function renderDock() {
+            const dock = document.getElementById('dock');
+            const mdock = document.getElementById('mobileDock');
+
+            // leading monogram (opens About)
+            dock.appendChild(dockEl('Maciej Rudzin', monogramSVG(52), () => openItem(items.find(i => i.id === 'about'))));
+
+            items.forEach(item => { const el = dockEl(item.name, glyphHTML(item, 52), () => openItem(item)); el.dataset.itemId = item.id; dock.appendChild(el); });
+
+            const div = document.createElement('div'); div.className = 'dock-divider'; dock.appendChild(div);
+            dock.appendChild(dockEl('Kosz', trashSVG(52), () => {}));
+
+            // mobile dock: a few quick apps
+            ['works','spotify','notes','shop'].forEach(id => {
+                const item = items.find(i => i.id === id);
+                const el = document.createElement('div'); el.className = 'glyph';
+                el.innerHTML = glyphHTML(item, 56); el.style.cursor = 'pointer';
+                el.onclick = () => openItem(item);
+                mdock.appendChild(el);
+            });
+
+            initDockMagnify();
+        }
+        function dockEl(tip, svg, onClick) {
+            const el = document.createElement('div');
+            el.className = 'dock-icon';
+            el.innerHTML = `<div class="glyph">${svg}</div><span class="dock-tip">${tip}</span>`;
+            el.onclick = onClick;
+            return el;
+        }
+
+        /* ---------- Dock magnification ---------- */
+        function initDockMagnify() {
+            const dock = document.getElementById('dock');
+            const icons = [...dock.querySelectorAll('.dock-icon')];
+            const MAX = 0.6, RADIUS = 130;
+            dock.addEventListener('mousemove', e => {
+                icons.forEach(icon => {
+                    const r = icon.getBoundingClientRect();
+                    const cx = r.left + r.width / 2;
+                    const dist = Math.abs(e.clientX - cx);
+                    const scale = dist < RADIUS ? 1 + MAX * (1 - dist / RADIUS) : 1;
+                    icon.style.transform = `scale(${scale})`;
+                    icon.style.margin = `0 ${(scale - 1) * 9}px`;
+                });
+            });
+            dock.addEventListener('mouseleave', () => icons.forEach(i => { i.style.transform = ''; i.style.margin = ''; }));
+        }
+
+        /* ---------- Window system ---------- */
+        const openByKey = {}; // key -> windowId (single instance per item)
+        function createWindow(title, content, key) {
+            if (key && openByKey[key]) {
+                const existing = document.getElementById(openByKey[key]);
+                if (existing) { // focus instead of duplicating
+                    existing.style.zIndex = ++highestZIndex;
+                    existing.style.animation = 'none';
+                    void existing.offsetWidth; // restart animation
+                    existing.style.animation = 'windowFocus 0.25s ease';
+                    bringToFront(existing.id);
+                    return existing;
+                }
+                delete openByKey[key];
+            }
+            windowCounter++;
+            const windowId = 'window-' + windowCounter;
+            if (key) openByKey[key] = windowId;
+            const windowEl = document.createElement('div');
+            windowEl.className = 'window';
+            windowEl.id = windowId;
+            windowEl.dataset.key = key || '';
+            windowEl.dataset.locname = title;
+            windowEl.style.zIndex = ++highestZIndex;
+            windowEl.style.animation = 'windowOpen 0.28s ease';
+            windowEl.innerHTML = `
+                <div class="window-titlebar">
+                    <div class="window-buttons">
+                        <div class="window-button close" onclick="closeWindow('${windowId}')"></div>
+                        <div class="window-button minimize"></div>
+                        <div class="window-button maximize"></div>
+                    </div>
+                    <div class="window-title">${title}</div>
+                </div>
+                <div class="window-content">${content}</div>`;
+            document.body.appendChild(windowEl);
+            activeWindows.push(windowId);
+
+            // centered, with a wrapping pixel cascade that stays on screen
+            const w = windowEl.offsetWidth, h = windowEl.offsetHeight;
+            const cascade = ((activeWindows.length - 1) % 6) * 30;
+            let left = (window.innerWidth - w) / 2 + cascade;
+            let top = Math.max(36, (window.innerHeight - h) / 2 - 30) + cascade;
+            left = Math.max(0, Math.min(left, window.innerWidth - w));
+            top = Math.max(30, Math.min(top, window.innerHeight - h));
+            windowEl.style.left = left + 'px';
+            windowEl.style.top = top + 'px';
+
+            makeDraggable(windowEl);
+            windowEl.addEventListener('mousedown', () => { bringToFront(windowId); });
+            syncDockDots();
+            updateHash();
+            return windowEl;
+        }
+
+        /* ---------- URL "desktop path" (#/Desktop/...) ---------- */
+        function bringToFront(windowId){
+            const el = document.getElementById(windowId);
+            if (!el) return;
+            el.style.zIndex = ++highestZIndex;
+            const i = activeWindows.indexOf(windowId);
+            if (i !== -1) { activeWindows.splice(i, 1); activeWindows.push(windowId); }
+            updateHash();
+        }
+        function updateHash(){
+            const top = activeWindows.length ? document.getElementById(activeWindows[activeWindows.length - 1]) : null;
+            const name = top && top.dataset.locname ? top.dataset.locname : '';
+            const path = '#/Desktop/' + (name ? encodeURIComponent(name) : '');
+            history.replaceState(null, '', path);
+        }
+        function makeDraggable(windowEl) {
+            const titlebar = windowEl.querySelector('.window-titlebar');
+            let isDragging = false, offsetX = 0, offsetY = 0;
+            titlebar.addEventListener('mousedown', dragStart);
+            function dragStart(e) {
+                if (e.target.classList.contains('window-button')) return;
+                const rect = windowEl.getBoundingClientRect();
+                offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
+                isDragging = true; windowEl.style.cursor = 'grabbing';
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', dragEnd);
+            }
+            function drag(e) {
+                if (!isDragging) return; e.preventDefault();
+                let left = e.clientX - offsetX, top = e.clientY - offsetY;
+                const rect = windowEl.getBoundingClientRect();
+                left = Math.max(0, Math.min(left, window.innerWidth - rect.width));
+                top = Math.max(26, Math.min(top, window.innerHeight - rect.height));
+                windowEl.style.left = left + 'px'; windowEl.style.top = top + 'px';
+            }
+            function dragEnd() {
+                isDragging = false; windowEl.style.cursor = 'default';
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', dragEnd);
+            }
+        }
+        function syncDockDots() {
+            document.querySelectorAll('.dock-icon[data-item-id]').forEach(ic => {
+                const open = !!openByKey[ic.dataset.itemId];
+                let dot = ic.querySelector('.run-dot');
+                if (open && !dot) { dot = document.createElement('span'); dot.className = 'run-dot'; ic.appendChild(dot); }
+                if (!open && dot) dot.remove();
+            });
+        }
+        function closeWindow(windowId) {
+            const el = document.getElementById(windowId);
+            if (el) {
+                if (el.dataset.key) delete openByKey[el.dataset.key];
+                el.remove(); activeWindows = activeWindows.filter(id => id !== windowId);
+            }
+            syncDockDots();
+            updateHash();
+        }
+        function openItem(item) {
+            if (!item) return;
+            if (item.isExternal) { window.open(item.url, '_blank'); return; }
+            if (item.dynamic) { openDynamic(item); return; }
+            createWindow(item.name, item.content, item.id);
+        }
+
+        /* ---------- Server-backed content ----------
+           Reads from api.php (PHP host). Falls back to the built-in
+           placeholder when there is no backend (e.g. opened as a local file). */
+        const API = 'api.php';
+
+        /* The site reads content either from a static manifest.json (GitHub Pages /
+           any static host, built by the GitHub Action) or from api.php (PHP host).
+           It auto-detects which one is available. */
+        let DATA_MODE = 'api';   // 'manifest' | 'api'
+        let MANIFEST = null;
+        async function initDataSource(){
+            try {
+                const r = await fetch('content/manifest.json', { cache: 'no-store' });
+                if (r.ok) { MANIFEST = await r.json(); DATA_MODE = 'manifest'; return; }
+            } catch(e) {}
+            DATA_MODE = 'api';
+        }
+        const dataReady = initDataSource();
+
+        async function getGallery(dir){
+            await dataReady;
+            if (DATA_MODE === 'manifest') return (MANIFEST.galleries && MANIFEST.galleries[dir]) || [];
+            return (await fetchJSON(`${API}?action=gallery&dir=${encodeURIComponent(dir)}`)).files;
+        }
+        async function getNotes(){
+            await dataReady;
+            if (DATA_MODE === 'manifest') return MANIFEST.notes || [];
+            return (await fetchJSON(`${API}?action=notes`)).notes;
+        }
+        async function getAbout(){
+            await dataReady;
+            if (DATA_MODE === 'manifest') return MANIFEST.about || '';
+            return await fetchText(`${API}?action=about`);
+        }
+        async function getMenu(name){
+            await dataReady;
+            if (DATA_MODE === 'manifest') return (MANIFEST.menu && MANIFEST.menu[name]) || [];
+            return (await fetchJSON(`${API}?action=menu&dir=${encodeURIComponent(name)}`)).poems;
+        }
+        async function getWallpaper(){
+            await dataReady;
+            if (DATA_MODE === 'manifest') return MANIFEST.wallpaper || null;
+            return (await fetchJSON(`${API}?action=wallpaper`)).url;
+        }
+
+        function escapeHTML(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function mdToHTML(t){
+            if (window.marked) { try { return window.marked.parse(t); } catch(e){} }
+            // minimal fallback: paragraphs + line breaks, escaped
+            return escapeHTML(t).split(/\n{2,}/).map(p => '<p>' + p.replace(/\n/g,'<br>') + '</p>').join('');
+        }
+        async function fetchJSON(url){ const r = await fetch(url, { cache:'no-store' }); if(!r.ok) throw 0; return r.json(); }
+        async function fetchText(url){ const r = await fetch(url, { cache:'no-store' }); if(!r.ok) throw 0; return r.text(); }
+
+        function renderGallery(files){
+            if (!files || !files.length) return `<div class="placeholder"><p>Nothing here yet. Drop images or videos into this folder on the server.</p></div>`;
+            const cells = files.map(f => f.type === 'video'
+                ? `<video class="gal-item" src="${f.url}" controls preload="metadata"></video>`
+                : `<a class="gal-item" href="${f.url}" target="_blank"><img src="${f.url}" loading="lazy" alt="${escapeHTML(f.name)}"></a>`
+            ).join('');
+            return `<div class="gallery">${cells}</div>`;
+        }
+        function renderNotes(notes){
+            if (!notes || !notes.length) return `<div class="placeholder"><p>No notes yet. Add .md or .txt files to the notes folder on the server.</p></div>`;
+            return notes.map(n => `<article class="note"><h3>${escapeHTML(n.title)}</h3><div class="prose">${mdToHTML(n.content)}</div></article>`).join('');
+        }
+
+        async function openDynamic(item){
+            const win = createWindow(item.name, `<div class="dyn-loading"><span class="spinner"></span> Loading…</div>`, item.id);
+            if (win.dataset.loaded === '1') return; // focused existing window, don't reload
+            win.dataset.loaded = '1';
+            const slot = win.querySelector('.window-content');
+            try {
+                const s = item.source;
+                if (s.kind === 'gallery'){
+                    slot.innerHTML = renderGallery(await getGallery(s.dir));
+                } else if (s.kind === 'about'){
+                    slot.innerHTML = `<div class="prose">${mdToHTML(await getAbout())}</div>`;
+                } else if (s.kind === 'notes'){
+                    slot.innerHTML = renderNotes(await getNotes());
+                }
+            } catch (e) {
+                // no backend available → show the built-in placeholder
+                slot.innerHTML = item.content || `<div class="placeholder"><p>Content will appear once the site runs on a PHP server.</p></div>`;
+            }
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && activeWindows.length) closeWindow(activeWindows[activeWindows.length - 1]);
+        });
+
+        /* ---------- Menu bar: dropdowns with poems ----------
+           Each menu reads .txt/.md files from content/menu/<name>/ on the server.
+           File name = poem title in the dropdown; clicking opens it in a window.
+           Without a backend, one built-in text per menu is shown. */
+        const menuFallback = {
+            file: { title: 'every file is a promise', body: `Every file is a promise: that something once mattered enough to be kept.\n\nSomewhere on this disk there is a folder nobody has opened in years. It waits the way photographs wait — patiently, and without hope.` },
+            edit: { title: 'undo', body: `Undo. Undo. Undo.\n\nIf only memory shipped with the same shortcut. I would scroll back to the kitchen, the argument, the door — and press it once, gently.` },
+            view: { title: 'arm\u2019s length', body: `Zoom in far enough and everything becomes abstraction: pixels, grain, atoms, guesses.\n\nZoom out far enough and it becomes abstraction again. Meaning lives only at arm's length.` },
+            go: { title: 'go, but never where', body: `The menu says Go, but never where.\n\nBack. Forward. Enclosing folder. As if all journeys were just rearrangements of what already contains us.` },
+            window: { title: 'a window on a screen', body: `A window on a screen inside a window in a wall.\n\nBoth promise the same thing: that the world continues past the frame, and that you may watch it without being seen.` },
+            help: { title: 'no results found', body: `No results found for "how to begin again".\n\nTry different keywords. Try fewer words. Try, the manual suggests, restarting.` }
+        };
+        const poemCache = {};
+        let openDropdown = null;
+
+        function closeDropdown() {
+            if (openDropdown) { openDropdown.el.remove(); openDropdown.anchor.classList.remove('open'); openDropdown = null; }
+        }
+        async function toggleDropdown(anchor, menu) {
+            if (openDropdown && openDropdown.menu === menu) { closeDropdown(); return; }
+            closeDropdown();
+            const dd = document.createElement('div');
+            dd.className = 'dropdown';
+            const r = anchor.getBoundingClientRect();
+            dd.style.left = Math.round(r.left) + 'px';
+            dd.innerHTML = `<div class="dd-note">Loading…</div>`;
+            document.body.appendChild(dd);
+            anchor.classList.add('open');
+            openDropdown = { el: dd, anchor, menu };
+
+            let poems = poemCache[menu];
+            if (!poems) {
+                try {
+                    poems = await getMenu(menu);
+                } catch(e) { poems = null; }
+                if (!poems || !poems.length) poems = [menuFallback[menu]];
+                poemCache[menu] = poems;
+            }
+            if (openDropdown !== null && openDropdown.el !== dd) return; // a different menu was opened meanwhile
+            dd.innerHTML = poems.map((p, i) =>
+                `<span class="dd-item" data-i="${i}">${escapeHTML(p.title)}</span>`
+            ).join('') + `<div class="dd-sep"></div><div class="dd-note">plain text · one file, one poem</div>`;
+            dd.querySelectorAll('.dd-item').forEach(it => {
+                it.addEventListener('click', () => {
+                    const p = poems[+it.dataset.i];
+                    closeDropdown();
+                    createWindow(p.title, `<div class="poem">${escapeHTML(p.body)}</div>`, `poem-${menu}-${p.title}`);
+                });
+            });
+        }
+        document.querySelectorAll('.menu-item').forEach(el => {
+            el.addEventListener('click', e => { e.stopPropagation(); toggleDropdown(el, el.dataset.menu); });
+        });
+        document.addEventListener('click', e => { if (!e.target.closest('.dropdown')) closeDropdown(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDropdown(); });
+
+        /* ---------- Clock ---------- */
+        function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+        function updateClock() {
+            const d = new Date();
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            const wd = cap(new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d));
+            const mo = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(d).replace('.', '');
+            const menu = document.getElementById('menuClock');
+            const mob = document.getElementById('mobileClock');
+            if (menu) menu.textContent = `${wd} ${d.getDate()} ${mo} ${hh}:${mm}`;
+            if (mob) mob.textContent = `${hh}:${mm}`;
+        }
+
+        /* ---------- Wallpaper from server (content/wallpaper/) ---------- */
+        (async function loadWallpaper(){
+            try {
+                const url = await getWallpaper();
+                if (url) {
+                    const el = document.getElementById('wallpaper');
+                    const img = new Image();
+                    img.onload = () => { el.style.backgroundImage = `url('${url}')`; el.classList.add('on'); };
+                    img.src = url;
+                }
+            } catch(e) { /* no backend → keep CSS space scene */ }
+        })();
+
+        /* ---------- Init ---------- */
+        renderIcons();
+        renderDock();
+        updateClock();
+        setInterval(updateClock, 1000 * 10);
+
+        /* Desktop path in the URL: default #/Desktop/, and open a window
+           directly if someone visits e.g. .../#/Desktop/WORKS */
+        (function initDesktopPath(){
+            const m = location.hash.match(/^#\/Desktop\/(.+)$/);
+            if (m) {
+                const want = decodeURIComponent(m[1]).toLowerCase();
+                const item = items.find(it => it.name.toLowerCase() === want && !it.isExternal);
+                if (item) { openItem(item); return; }
+            }
+            history.replaceState(null, '', '#/Desktop/');
+        })();
+    </script>
+</body>
+</html>
